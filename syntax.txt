@@ -1,0 +1,29 @@
+•¶–@ƒƒ‚
+[—\–ñŒê] [ˆø”] [ˆø”]...
+printText "Hi!"
+
+//o—Í
+printText "Hello, World!" - (text)
+printBin 15 - (int)
+printVar 10 - (ptr)
+printVars 10 5 - (ptr,int)
+
+//{[~€
+ptr 10 + 5
+ptr 10 + ptr 5
+
+ptr 10 - 5
+ptr 10 - ptr 5
+
+ptr 10 * 5
+ptr 10 * ptr 5
+
+ptr 10 / 5
+ptr 10 / ptr 5
+
+ptr 10 = 5
+ptr 10 = ptr 5
+
+//“ü—Í
+input to 100
+input max 64 to 100
