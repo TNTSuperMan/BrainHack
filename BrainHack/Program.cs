@@ -90,6 +90,7 @@ namespace BrainHack
 
             StreamReader file = new StreamReader(fpath);
             string ret = string.Empty;
+            Console.WriteLine("ビルド中...");
             while (!file.EndOfStream)
             {
                 string line = file.ReadLine();
@@ -100,18 +101,40 @@ namespace BrainHack
                     case "printtext":
                         if(spline.Length < 2)
                         {
-                            Console.WriteLine("エラー: printvar関数の引数がありません。\n無視して続行します。");
+                            Console.WriteLine("エラー: printtext関数の引数がありません。\n無視して続行します。");
                             continue;
                         }
                         string data = spline[1];
                         for (int i = 1; i < spline.Length - 1; i++)
                         {
-                            data += spline[i + 1] + " ";
+                            data += " " + spline[i + 1];
                         }
                         ret += toPtr(0);
                         for(int i = 0;i < data.Length; i++)
                         {
                             ret += "[-]" + forString('+', data[i]) + ".";
+                        }
+                        break;
+                    case "savetext":
+                        if (spline.Length < 3)
+                        {
+                            Console.WriteLine("エラー: savetext関数の引数が足りません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[1],out int stptr))
+                        {
+                            Console.WriteLine("エラー: savetext関数の引数が不正です。\n無視して続行します。");
+                            continue;
+                        }
+                        data = spline[2];
+                        for (int i = 1; i < spline.Length - 2; i++)
+                        {
+                            data += " " + spline[i + 2];
+                        }
+                        for (int i = 0; i < data.Length; i++)
+                        {
+                            ret += toPtr(stptr + i);
+                            ret += forString('+', data[i]);
                         }
                         break;
                     case "printvar":
@@ -156,26 +179,37 @@ namespace BrainHack
                             //いつかつくる　ポインタの内容を代入
                             //ret += toPtr(val2);
                         }
-                        else
+                        
+                        switch (spline[2])
                         {
-                            if (spline[2] == "=")
-                            {
+                            case "+":
+                                ret += toPtr(0);
+                                ret += Set(val2);
+                                ret += "[" + forString('>', val) + "+" + forString('<', val) + "-]";
+                                break;
+                            case "-":
+                                ret += toPtr(0);
+                                ret += Set(val2);
+                                ret += "[" + forString('>', val) + "-" + forString('<', val) + "-]";
+                                break;
+                            case "*":
+                                ret += toPtr(0);
+                                ret += "[-]";
+                                ret += toPtr(val);
+                                ret += "[" + forString('<',val) + "+" + forString('>', val) + "-]";
+                                ret += toPtr(0);
+                                ret += "[" + forString('>', val) + forString('+', val2) + forString('<', val) + "-]";
+                                break;
+                            case "=":
                                 ret += toPtr(val);
                                 ret += Set(val2);
                                 break;
-                            }
-                            ret += toPtr(0);
-                            ret += Set(val2);
-                        }
-                        switch (spline[2])
-                        {
-
                         }
                         break;
                 }
             }
             File.WriteAllText("out.bf.txt", ret);
-            Console.WriteLine("終了しました。コピペしますか？(Y/N)");
+            Console.Write("終了しました。コピーしますか？(Y/N)");
             if(Console.ReadKey(true).Key == ConsoleKey.Y)
             {
                 Clipboard.SetText(ret);
