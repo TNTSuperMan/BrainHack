@@ -133,7 +133,7 @@ namespace BrainHack
                         }
                         for (int i = 0; i < data.Length; i++)
                         {
-                            ret += toPtr(stptr + i);
+                            ret += toPtr(stptr + 2 + i);
                             ret += forString('+', data[i]);
                         }
                         break;
@@ -148,8 +148,33 @@ namespace BrainHack
                             Console.WriteLine("エラー: printvar関数の引数が数字ではありません。\n無視して続行します。");
                             continue;
                         }
-                        ret += toPtr(val);
+                        ret += toPtr(val + 2);
                         ret += ".";
+                        break;
+                    case "printvars":
+                        if (spline.Length < 3)
+                        {
+                            Console.WriteLine("エラー: printvars関数の引数が足りません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[1], out val))
+                        {
+                            Console.WriteLine("エラー: printvar関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        val += 2;
+                        if (!int.TryParse(spline[2], out int val2))
+                        {
+                            Console.WriteLine("エラー: printvar関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+
+                        for(int i = 0;i < val2; i++)
+                        {
+
+                            ret += toPtr(val + i);
+                            ret += ".";
+                        }
                         break;
                     case "ptr":
                         if (spline.Length < 4)
@@ -162,8 +187,9 @@ namespace BrainHack
                             Console.WriteLine("エラー: ptr関数の引数が数字ではありません。\n無視して続行します。");
                             continue;
                         }
+                        val += 2;
                         bool ptrmode = false;
-                        if (!int.TryParse(spline[3], out int val2))
+                        if (!int.TryParse(spline[3], out val2))
                         {
                             if (spline[3].ToLower() == "ptr" && spline.Length > 5 && int.TryParse(spline[4],out val2))
                             {
@@ -200,20 +226,66 @@ namespace BrainHack
                                 ret += toPtr(0);
                                 ret += "[" + forString('>', val) + forString('+', val2) + forString('<', val) + "-]";
                                 break;
-                            case "=":
-                                ret += toPtr(val);
-                                ret += Set(val2);
-                                break;
                         }
+                        break;
+                    case "set":
+
+                        if (spline.Length < 3)
+                        {
+                            Console.WriteLine("エラー: set関数の引数が十分ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[1], out val))
+                        {
+                            Console.WriteLine("エラー: set関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[2], out val2))
+                        {
+                            Console.WriteLine("エラー: set関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        ret += toPtr(val + 2);
+                        ret += Set(val2);
+                        break;
+                    case "cp":
+                        if (spline.Length < 3)
+                        {
+                            Console.WriteLine("エラー: cp関数の引数が十分ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[1], out val))
+                        {
+                            Console.WriteLine("エラー: cp関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        val += 2;
+                        if (!int.TryParse(spline[2], out val2))
+                        {
+                            Console.WriteLine("エラー: cp関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        val2 += 2;
+
+                        ret += toPtr(val);
+                        ret += "[" + forString('<', val) + "+" + forString('>', val) + "-]";
+                        ret += toPtr(0);
+                        //move val to 0
+
+                        ret += "[" + forString('>', val) + "+";
+
+                        ret += val2 - val < 0 ? forString('<', val - val2) : forString('>', val2 - val);
+
+                        ret += "+" + forString('<', val2) + "-]";
                         break;
                 }
             }
             File.WriteAllText("out.bf.txt", ret);
+            Clipboard.SetText(ret);
             Console.Write("終了しました。コピーしますか？(Y/N)");
-            if(Console.ReadKey(true).Key == ConsoleKey.Y)
-            {
-                Clipboard.SetText(ret);
-            }
+            //if(Console.ReadKey(true).Key == ConsoleKey.Y)
+           // {
+           // }
         }
     }
 }

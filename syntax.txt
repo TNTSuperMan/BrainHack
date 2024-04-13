@@ -8,7 +8,7 @@ printBin 15 - (int)
 printVar 10 - (ptr)
 printVars 10 5 - (ptr,int)
 
-//{[~€
+//{[~€
 ptr 10 + 5
 ptr 10 + ptr 5
 
@@ -21,8 +21,9 @@ ptr 10 * ptr 5
 ptr 10 / 5
 ptr 10 / ptr 5
 
-ptr 10 = 5
-ptr 10 = ptr 5
+set 10  5
+
+cp 10 20
 
 //“ü—Í
 input to 100
