@@ -1,1 +1,6 @@
-printtext oChinchin
+set 0 5
+
+for 0
+input 1
+printvar 1
+endfor

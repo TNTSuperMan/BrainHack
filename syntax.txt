@@ -28,3 +28,6 @@ cp 10 20
 //“ü—Í
 input to 100
 input max 64 to 100
+
+for n
+endfor
