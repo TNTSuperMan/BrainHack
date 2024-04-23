@@ -1,6 +1,14 @@
-set 0 5
+set 0 1
+while 0
 
-for 0
 input 1
+if notzero 1
 printvar 1
-endfor
+
+else
+
+printtext [Zero]
+
+endif
+
+endwhile

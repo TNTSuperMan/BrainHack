@@ -9,11 +9,12 @@ namespace BrainHack
 {
     internal class Program
     {
+        static readonly int[] prime = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 199, 211, 223, 227, 229 };
         static int nowptr = 0;
         /// <summary>
         /// システム予約メモリ数
         /// </summary>
-        static readonly int sysc = 4;
+        static readonly int sysc = 5;
         /// <summary>
         /// 特定のポインタに移動
         /// </summary>
@@ -71,6 +72,12 @@ namespace BrainHack
             }
             return ret;
         }
+        /// <summary>
+        /// アドレスvalの内容をアドレスval2にコピー
+        /// </summary>
+        /// <param name="val">コピー元</param>
+        /// <param name="val2">コピー先</param>
+        /// <returns>コピーするコード</returns>
         static string cp(int val, int val2)
         {
             string ret = string.Empty;
@@ -110,7 +117,10 @@ namespace BrainHack
 
             StreamReader file = new StreamReader(fpath);
             string ret = string.Empty;
-            int forc = 0;
+            int whileptr = 0;
+            int elsed = 0;
+            char prtx0;
+            List<char> prtxs = new List<char>();
 
             Console.WriteLine("ビルド中...");
             while (!file.EndOfStream)
@@ -126,15 +136,26 @@ namespace BrainHack
                             Console.WriteLine("エラー: printtext関数の引数がありません。\n無視して続行します。");
                             continue;
                         }
+
                         string data = spline[1];
                         for (int i = 1; i < spline.Length - 1; i++)
                         {
                             data += " " + spline[i + 1];
                         }
                         ret += toPtr(0);
-                        for(int i = 0;i < data.Length; i++)
+                        ret += "[-]" + forString('+', data[0]) + ".";
+
+                        for (int i = 1;i < data.Length; i++)
                         {
-                            ret += "[-]" + forString('+', data[i]) + ".";
+                            if (data[i-1] - data[i] > 0)
+                            {
+                                ret += forString('-', data[i - 1] - data[i]);
+                            }
+                            else
+                            {
+                                ret += forString('+', -(data[i-1] - data[i]));
+                            }
+                            ret += ".";
                         }
                         break;
                     case "savetext":
@@ -231,13 +252,13 @@ namespace BrainHack
                                 case "+":
                                     ret += toPtr(1);
                                     ret += "[";
-                                    ret += toPtr(val2) + "+";
+                                    ret += toPtr(val) + "+";
                                     ret += toPtr(1) + "-]";
                                     break;
                                 case "-":
                                     ret += toPtr(1);
                                     ret += "[";
-                                    ret += toPtr(val2) + "-";
+                                    ret += toPtr(val) + "-";
                                     ret += toPtr(1) + "-]";
                                     break;
                                 case "*":
@@ -315,26 +336,25 @@ namespace BrainHack
                         val2 += sysc;
                         ret += cp(val, val2);
                         break;
-                    case "for":
-
+                    case "while":
                         if (spline.Length < 2)
                         {
-                            Console.WriteLine("エラー: for関数の引数が十分ではありません。\n無視して続行します。");
+                            Console.WriteLine("エラー: while関数の引数が十分ではありません。\n無視して続行します。");
                             continue;
                         }
                         if (!int.TryParse(spline[1], out val))
                         {
-                            Console.WriteLine("エラー: for関数の引数が数字ではありません。\n無視して続行します。");
+                            Console.WriteLine("エラー: while関数の引数が数字ではありません。\n無視して続行します。");
                             continue;
                         }
                         val += sysc;
-                        forc = val;
-                        ret += toPtr(forc);
+                        whileptr = val;
+                        ret += toPtr(whileptr);
                         ret += "[";
                         break;
-                    case "endfor":
-                        ret += toPtr(forc);
-                        ret += "-]";
+                    case "endwhile":
+                        ret += toPtr(whileptr);
+                        ret += "]";
                         break;
                     case "/*":
                         while (!file.EndOfStream && (line = file.ReadLine()) != "*/") ;
@@ -355,6 +375,40 @@ namespace BrainHack
                         }
                         ret += toPtr(val+sysc);
                         ret += "[-],";
+                        break;
+                    case "if":
+                        if (spline.Length < 3)
+                        {
+                            Console.WriteLine("エラー: if関数の引数が十分ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        if (!int.TryParse(spline[2], out val))
+                        {
+                            Console.WriteLine("エラー: if関数の引数が数字ではありません。\n無視して続行します。");
+                            continue;
+                        }
+                        val += sysc;
+                        switch (spline[1])
+                        {
+                            case "notzero":
+                                ret += cp(val, 1);
+                                break;
+                            default:
+                                Console.WriteLine("エラー: if関数の引数が正しくありません。\n無視して続行します。");
+                                continue;
+                        }
+                        ret += toPtr(4) + "[-]+";
+                        ret += toPtr(1) + "[" + toPtr(4) + "-";
+                        elsed = 0;
+                        break;
+                    case "else":
+                        ret += toPtr(1) + "[-]]";
+                        ret += toPtr(4) + "[[-]";
+                        elsed = 1;
+                        break;
+                    case "endif":
+                        ret += toPtr(elsed == 1 ? 4 : 1);
+                        ret += "[-]]";
                         break;
                 }
             }
